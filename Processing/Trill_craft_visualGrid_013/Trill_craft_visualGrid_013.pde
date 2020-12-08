@@ -2,7 +2,7 @@
 Dot [] dots;
 int rows = 4;
 int cols = 4;
-
+  int index=0;
 
 //mm into pixels 
 //pixel = dpi * mm / 25.4 mm (1 in)
@@ -80,13 +80,14 @@ void location() {
 
   //need to confirm if [0] and [1] are of triggered or in close proximity sensors. 
   //do I need an extra array to parse active sesnors into?
-  //calculate lastactivesensor then nextactivesensor
-  //this then updates the index num to correspond. 
-
-  float x1=dots[0].x+(radius/2);
-  float x2=dots[1].x+(radius/2);
-  float y1=dots[0].y+(radius/2);
-  float y2=dots[1].y+(radius/2);
+  //calculate lastactivesensor then nextactivesensor - I have this in the Class 
+  // then updates the index num to correspond to ID of lastactive sensors. 
+ 
+  
+  float x1=dots[index].x+(radius/2);
+  float x2=dots[index-1].x+(radius/2);
+  float y1=dots[index].y+(radius/2);
+  float y2=dots[index-1].y+(radius/2);
   //send to distance calc. 
   distance(x1, y1, x2, y2);
 }

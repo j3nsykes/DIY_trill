@@ -15,6 +15,7 @@ class Dot {
   float total = 0, average = 0;
   int p = 0, n = 0;
 
+  
   Dot(int _id, int _x, int _y, int _d) {
     id=_id;
     x=_x;
@@ -53,43 +54,50 @@ class Dot {
 
     if (activeTouch[id]==0 && gSensorReadings[id]> 120 ) { //check for repeated triggers.
       // println("Electrode " + id + " was touched");
+      //control visual indicator. 
+      setCol(255, 100, 200, a);
       activeTouch[id]=1; //no repeat triggers
 
       lastActiveTouch[id]=gSensorReadings[id];//store last active reading
       //printArray(lastActiveTouch[id]);
-
-
-
-
-
-      //control visual indicator. 
-      setCol(255, 100, 200, a);
+    
+    //put lastActiveTouch ID num into a varibale 
+    updateIndex(id);
+ 
+    
+ 
     } else if (activeTouch[id]==1 && gSensorReadings[id]<= 120 ) {
       //println("Electrode " + id + " was released");
       activeTouch[id]=0;
       // setCol(200, 200, 200, a);
     }
+
   }
 
 
 
-  void location() {
-    //^^ parse and x y into this function and update with the x y from lastActive id 
-    //get from one ellispe to the next. 
-    //posX=x[id];
-    //posY=y[id];
 
-    //send position. Write touch position up to maxNumCentroids/gNumSensors
-  }
+  //void location() {
+  //  //^^ parse and x y into this function and update with the x y from lastActive id 
+  //  //get from one ellispe to the next. 
+  //  //posX=x[id];
+  //  //posY=y[id];
+
+  //  //send position. Write touch position up to maxNumCentroids/gNumSensors
+  //}
 
 
-  void sizeOfTouch() {
+  //void sizeOfTouch() {
 
-    //send size. Write touch size up to maxNumCentroids/gNumSensors
-  }
+  //  //send size. Write touch size up to maxNumCentroids/gNumSensors
+  //}
 }
 
-
+//send ID to update active index
+int updateIndex(int _index){
+index=_index;
+return index;
+}
 
 
 void displayAllDots() {
