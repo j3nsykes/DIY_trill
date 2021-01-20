@@ -86,7 +86,7 @@ void draw() {
 
 
 
-void calcPeakValIndex() {
+void calcPeakValIndex() { //working
   //calculate index in array with the peak value 
   biggest = 0;
   for (int i = 0; i < 4; i++) {
@@ -105,13 +105,13 @@ void calcPeakValIndex() {
 
 
 
-void visualiseBiggestCoord() {
+void visualiseBiggestCoord() { //working
 
   //identify biggest co-ord and display it.
 
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {  
-      color col = xCoord[i*4+j] * 256;  //is the array the raw value array or the new fixed coordinate array? 
+      //color col = xCoord[i*4+j] * 256;  //is the array the raw value array or the new fixed coordinate array? 
 
       if (i*4+j==biggest) {
         //draws positions of biggest one
@@ -127,7 +127,7 @@ void visualiseBiggestCoord() {
 
 
 //calculate the peak raw data spike in the array of sensor readings. 
-void calcRawPeakVal() {
+void calcRawPeakVal() { //not working
   //store the peak value (not the coordinate/index of the peak value )
   biggestVal = 0;
   for (int i = 0; i < 4; i++) {
@@ -139,18 +139,26 @@ void calcRawPeakVal() {
         //use that val to normalise all outputs. 
         
         gSensorReadings[i*4+j] = gSensorReadings[i*4+j] / biggestVal; //normalise calc
+        
+        //normalized = (x-min(x))/(max(x)-min(x))
+        //int normalized = ((gSensorReadings[i*4+j]-0)/(100-0));
+        //println("normalized: "+normalized);
+        
         println("update normalised: "+gSensorReadings[i*4+j]); //not executing
  
-        biggestVal = gSensorReadings[i*4+j];
+        biggestVal = gSensorReadings[i*4+j]; //not executing 
         println("biggestVal: "+biggestVal); //should be 0 and 1s if normalisation in use
-      }
+   }
      }
      catch(ArithmeticException e) {
        println("now zero");
      }
     }
   }
-} //does 'biggest' get parsed into 'centroidX'? //join up with the centroidCalc? 
+} 
+
+
+//does 'biggest' get parsed into 'centroidX'? //join up with the centroidCalc? 
 
 
 // create a list of x and y coordinates for each sensor, 
