@@ -2,14 +2,14 @@ import processing.serial.*;
 
 // Serial communication
 Serial gPort; // Serial port
-int gPortNumber = 2; // Port number
 int gBaudRate = 115200; // Baud Rate
+float alpha;
 
 
 // Number of sensors
-int gNumSensors = 16;
+int gNumSensors = totalSensorPads;
 // Bit resolution
-int gNumBits = 12;
+int gNumBits = 16;
 // Expected range of received data
 int gDataRange[] = {0, (1<<gNumBits)-1};
 
@@ -20,11 +20,11 @@ float mapData01 [] = new float[gNumSensors];
 float mapData02 [] = new float[gNumSensors];
 float proxHeight [] = new float[gNumSensors];
 
-void trillSetup() {
+void trillSetup(int _gPortNumber) {
   println("Available ports: ");
   printArray(Serial.list());
 
-  String portName = Serial.list()[gPortNumber];
+  String portName = Serial.list()[_gPortNumber];
 
   println("Opening port " + portName);
   gPort = new Serial(this, portName, gBaudRate);
@@ -45,12 +45,9 @@ void serialEvent(Serial p) {
     for (i = 0; i < values.length; i++) {
       if (i < gNumSensors) {
         gSensorReadings[i] = values[i];
-        mapData01[i]=map(gSensorReadings[i], 120, 600, 100, 255);
-        proximity[i]=lerp(proximity[i], mapData01[i], 0.25); //use to control alpha and potentially size. 
+        //println("RAW READING: "+gSensorReadings[i]+"ID: "+i);
 
-        //repeat but for height (distance away from sensor)
-        mapData02[i]=map(gSensorReadings[i], 120, 600, 10, height-50);
-        proxHeight[i]=lerp(proximity[i], mapData02[i], 0.25); //use to control alpha and potentially size.
+
       }
     }
   }
