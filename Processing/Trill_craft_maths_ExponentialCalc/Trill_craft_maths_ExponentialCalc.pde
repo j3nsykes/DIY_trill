@@ -21,9 +21,9 @@ float expX, expY;
 int biggest = 0;
 int biggestVal=0;
 int lastBiggest=-1;
-int newX, newY;
-int norm;
-int normalisedData [] = new int [totalSensorPads];
+float newX, newY;
+float norm;
+float normalisedData [] = new float [totalSensorPads];
 
 void settings() {
   // Set dimensions of display window
@@ -52,7 +52,7 @@ void draw() {
   calcRawPeakVal();
   centroidCalc();
 
-  exponential();
+ // exponential();
   //moving centroid drawing
   fill(255, 100, 200, 200); 
   ellipseMode(CENTER);
@@ -61,7 +61,7 @@ void draw() {
   //easingX(centroidX);
   //easingY(centroidY);
 
-  ellipse(expX, expY, size, size); //ellipse of centroid proximity dictates size.
+  ellipse(centroidX, centroidY, size, size); //ellipse of centroid proximity dictates size.
 
   //without easing
   //notes less drop off but more ridgid movement. 
@@ -120,21 +120,29 @@ void visualiseBiggestCoord() { //working
 }
 
 //normalising function
-int normalise(int _val, int _max, int _min) {
+float normalise(float _val, float _max, float _min) {
   // println("normalising");
-  int max=_max;
-  int min = _min;
-  int val= _val;
+  float max=_max;
+  float min = _min;
+  float val= _val;
 
   norm=(val - min) / (max - min);
 
   //clip the values
-  if ( norm>=1) {
-    norm=1;
-  } else if ( norm<1) {
-    norm=0;
+  //if ( norm>=1) {
+  //  norm=1;
+  //} else if ( norm<1) {
+  //  norm=0;
+  //}
+  println("update normalised: "+norm);
+  if(norm>0){
+    return norm;
   }
-  return norm;
+  else{
+  return 0;
+  
+  }
+ 
 }
 
 //calculate the peak raw data spike in the array of sensor readings.
@@ -150,11 +158,11 @@ void calcRawPeakVal() {
         //use that val to normalise all outputs.
 
         normalise(gSensorReadings[i*4+j], 70, 1000);
-        println("update normalised: "+norm);
+        //println("update normalised: "+norm);
 
 
         //make new array of normlaised values here
-        normalisedData[i*4+j] = normalise(gSensorReadings[i*4+j], 70, 0); //this range effects the centroid 0:0 to 3:3 ratio
+        normalisedData[i*4+j] = normalise(gSensorReadings[i*4+j], 1000.0, 0.0); //this range effects the centroid 0:0 to 3:3 ratio
       }
     }
   }
@@ -197,13 +205,14 @@ void exponential() {
 
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < 4; j++) {
-      //float newI = float(i);
+      float newI = float(i);
+      float newJ = float(j);
 
-      expX+=j * sqrt(normalisedData[i*4+j]);
-      expY+=i * sqrt(normalisedData[i*4+j]);
+      expX+=newJ * sqrt(normalisedData[i*4+j]);
+      expY+=newI * sqrt(normalisedData[i*4+j]);
 
       /*
-      stroke(255, 0, 0);
+       stroke(255, 0, 0);
        point(newI, 100-newI); //straight
        stroke(0, 255, 0);
        point(newI, 100-sqrt(newI/100)*100); //curve
@@ -212,9 +221,9 @@ void exponential() {
        //point(i,100-(pow(i)*20));
        //point(i,100-(log(i)*20));
        */
-       
-       println("X: "+expX);
-       println("Y: "+expY);
+
+      //println("X: "+expX);
+      //println("Y: "+expY);
     }
   }
 }

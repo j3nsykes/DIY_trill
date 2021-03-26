@@ -14,7 +14,7 @@ int gNumBits = 16;
 int gDataRange[] = {0, (1<<gNumBits)-1};
 
 // Sensor readings
-int gSensorReadings[] = new int[gNumSensors];
+float gSensorReadings[] = new float[gNumSensors];
 float proximity [] = new float[gNumSensors];
 float mapData01 [] = new float[gNumSensors];
 float mapData02 [] = new float[gNumSensors];
