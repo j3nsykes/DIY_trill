@@ -17,12 +17,20 @@ int margin=26; //parameter around the grid of sensors
 
 float x, y;
 float centroidX, centroidY;
+float expX, expY;
 int biggest = 0;
 int biggestVal=0;
 int lastBiggest=-1;
-int newX, newY;
-int norm;
-int normalisedData [] = new int [totalSensorPads];
+float newX, newY;
+float norm;
+float normalisedData [] = new float [totalSensorPads];
+float weightedData [] = {2.97,2.8,5.55,0.0,1.96,2.63,7.69, 7.57,1.44,1.75,1.63, 2.17,1.58,1.56,1.85,1.22,1.13,1.07,1.07,1.08, 1.0,1.0,1.0,1.21};//manually put each calulated weight in here then use it for the centroid cal. 
+//max * 1.5 
+//divide 1 by max cell val 
+//eg: 1/0.8 = 1.11
+//will tell me what to * by. 
+//for each index of array and then the result goes into the weigthed data array index 
+//8.33
 
 void settings() {
   // Set dimensions of display window
@@ -51,14 +59,16 @@ void draw() {
   calcRawPeakVal();
   centroidCalc();
 
+  // exponential();
   //moving centroid drawing
   fill(255, 100, 200, 200); 
   ellipseMode(CENTER);
-  
+
   //with easing 
-  easingX(centroidX);
-  easingY(centroidY);
-  ellipse(x, y, size, size); //ellipse of centroid proximity dictates size.
+  //easingX(centroidX);
+  //easingY(centroidY);
+
+  ellipse(centroidX, centroidY, size, size); //ellipse of centroid proximity dictates size.
 
   //without easing
   //notes less drop off but more ridgid movement. 
@@ -93,7 +103,6 @@ void calcPeakValIndex() { //working
 
         biggest = i * 4 + j;
         //println(biggest); //which [index] has biggest val
-
       }
     }
   }
@@ -118,21 +127,26 @@ void visualiseBiggestCoord() { //working
 }
 
 //normalising function
-int normalise(int _val, int _max, int _min) {
+float normalise(float _val, float _max, float _min) {
   // println("normalising");
-  int max=_max;
-  int min = _min;
-  int val= _val;
+  float max=_max;
+  float min = _min;
+  float val= _val;
 
   norm=(val - min) / (max - min);
 
   //clip the values
-  if ( norm>=1) {
-    norm=1;
-  } else if ( norm<1) {
-    norm=0;
+  //if ( norm>=1) {
+  //  norm=1;
+  //} else if ( norm<1) {
+  //  norm=0;
+  //}
+  //println("normalised: "+norm);
+  if (norm>0) {
+    return norm;
+  } else {
+    return 0;
   }
-  return norm;
 }
 
 //calculate the peak raw data spike in the array of sensor readings.
@@ -143,22 +157,36 @@ void calcRawPeakVal() {
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < 4; j++) {
       //gSensorReadings[] is the raw sensor values array.
-      if (gSensorReadings[i*4+j] > gSensorReadings[biggestVal]) {
-        println("triggerReading: "+ gSensorReadings[i*4+j]);
-        //use that val to normalise all outputs.
+      // if (gSensorReadings[i*4+j] > gSensorReadings[biggestVal]) {
+      //println("triggerReading: "+ gSensorReadings[i*4+j]);
+      //use that val to normalise all outputs.
 
-        normalise(gSensorReadings[i*4+j], 70, 1000);
-        println("update normalised: "+norm);
+      // normalise(gSensorReadings[i*4+j], 70, 1000);
+      //println("CalRawPeak update normalised: "+norm);
+      float mapData = map(gSensorReadings[i*4+j], 50, 1700, 0, 1);
 
-
-        //make new array of normlaised values here
-        normalisedData[i*4+j] = normalise(gSensorReadings[i*4+j], 70, 0); //this range effects the centroid 0:0 to 3:3 ratio
+      if (mapData>=1) {
+        mapData=1;
       }
+      if (mapData<0) {
+        mapData=0;
+      }
+      //why am I doing this twice with different min and max?
+      normalisedData[i*4+j]= mapData;
+      //draw grid of squares black to white 0-24 electrode . Draw circle on top of this. 
+      println("CoOrd: "+(i*4+j));
+      println(normalisedData[i*4+j]);
+
+
+      //make new array of normlaised values here
+      //normalisedData[i*4+j] = normalise(gSensorReadings[i*4+j], 70.0, 0.0); //this range effects the centroid 0:0 to 3:3 ratio
+      // }
     }
   }
 }
 
-
+//max 1700
+//min 50 
 
 
 // create a list of x and y coordinates for each sensor,
@@ -171,21 +199,49 @@ void centroidCalc() {
   for (int i = 0; i < 6; i++) {
     for (int j = 0; j < 4; j++) {
 
-      centroidX+=j * (normalisedData[i*4+j]);
+      centroidX+=j * (normalisedData[i*4+j]); //weightedData[] instead?
       centroidY+=i * (normalisedData[i*4+j]);
 
 
       normalisedData[i*4+j]=0;//reset so not accumalitive add to centroid values
     }
   }
-  println(" centroidX: "+centroidX); //its working!!!
-  println(" centroidY: "+centroidY);
+  //println(" centroidX: "+centroidX); //I should be getting 0:0 ratios here. 
+  //println(" centroidY: "+centroidY);
   centroidX=(centroidX/24);
   centroidY=(centroidY/24);
-  //println(" centroidX: "+centroidX); //its working!!!
+  //println(" centroidX: "+centroidX); 
   //println(" centroidY: "+centroidY);
-  float maxX = 0.125;
-  float maxY = 0.22;
+  float maxX = 3.5;
+  float maxY = 4.5;
   centroidX=map(centroidX, 0, maxX, spacingX+(radius/2), width-radius/2); //this needs mapping to center points of contact surface area of the sensor.
   centroidY=map(centroidY, 0, maxY, spacingY+(radius/2), height-radius/2);
+}
+
+
+void exponential() {
+
+  for (int i = 0; i < 6; i++) {
+    for (int j = 0; j < 4; j++) {
+      float newI = float(i);
+      float newJ = float(j);
+
+      expX+=newJ * sqrt(normalisedData[i*4+j]);
+      expY+=newI * sqrt(normalisedData[i*4+j]);
+
+      /*
+       stroke(255, 0, 0);
+       point(newI, 100-newI); //straight
+       stroke(0, 255, 0);
+       point(newI, 100-sqrt(newI/100)*100); //curve
+       
+       //other calcs. 
+       //point(i,100-(pow(i)*20));
+       //point(i,100-(log(i)*20));
+       */
+
+      //println("X: "+expX);
+      //println("Y: "+expY);
+    }
+  }
 }
